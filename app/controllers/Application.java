@@ -2,6 +2,7 @@ package controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import models.FinishedVisits;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -24,10 +25,14 @@ public class Application extends Controller {
     public Result calc() {
         List<Reduced> res = database.find().asList().parallelStream().map(Reduced::new).collect(Collectors.toList());
 
-        CsvMapper csvMapper = new CsvMapper();
+        CsvSchema schema = CsvSchema.builder()
+                .addColumn("user_id")
+                .addColumn("club_id")
+                .addColumn("rating")
+                .build();
 
         try {
-            String csv = csvMapper.writer(csvMapper.schemaFor(Reduced.class)).writeValueAsString(res);
+            String csv = new CsvMapper().writer(schema).writeValueAsString(res);
             return ok(csv);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
