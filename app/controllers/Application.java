@@ -1,17 +1,17 @@
 package controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import models.FinishedVisits;
-import org.bson.types.ObjectId;
-import play.*;
 import play.libs.Json;
-import play.mvc.*;
-
+import play.mvc.Controller;
+import play.mvc.Result;
 import services.DB;
 import test.SampleRecommender;
-import views.html.*;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Application extends Controller {
 
@@ -22,13 +22,56 @@ public class Application extends Controller {
     DB database;
 
     public Result calc() {
-        List<FinishedVisits> res = database.find().asList();
-        return ok(Json.toJson(res));
+        List<Reduced> res = database.find().asList().parallelStream().map(Reduced::new).collect(Collectors.toList());
+
+        CsvMapper csvMapper = new CsvMapper();
+
+        try {
+            String csv = csvMapper.writer(csvMapper.schemaFor(Reduced.class)).writeValueAsString(res);
+            return ok(csv);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return internalServerError();
+        }
     }
 
     public Result index() {
          return ok(Json.toJson(23571113));
-//         return ok(index.render("Your new application is ready."));
     }
 
+    private class Reduced {
+        private String user_id;
+        private String club_id;
+        private Long rating;
+
+        public Reduced(FinishedVisits fv) {
+            user_id = fv.getUser_id();
+            club_id = fv.getClub_id();
+            rating  = fv.getRating();
+        }
+
+        public String getUser_id() {
+            return user_id;
+        }
+
+        public void setUser_id(String user_id) {
+            this.user_id = user_id;
+        }
+
+        public String getClub_id() {
+            return club_id;
+        }
+
+        public void setClub_id(String club_id) {
+            this.club_id = club_id;
+        }
+
+        public Long getRating() {
+            return rating;
+        }
+
+        public void setRating(Long rating) {
+            this.rating = rating;
+        }
+    }
 }

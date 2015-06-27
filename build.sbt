@@ -18,6 +18,8 @@ libraryDependencies += "org.mongodb" % "mongo-java-driver" % "2.11.0"
 
 libraryDependencies += "org.apache.mahout" % "mahout-core" % "0.9"
 
+libraryDependencies += "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.5.3"
+
 // Play provides two styles of routers, one expects its actions to be injected, the
 // other, legacy style, accesses its actions statically.
 routesGenerator := InjectedRoutesGenerator
