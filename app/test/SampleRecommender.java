@@ -1,13 +1,5 @@
 package test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -19,8 +11,16 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
-public class SampleRecommender  {
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
+public class SampleRecommender {
+
+	public ImmportantResult importantFunction(int importantArgument)
+	{
+		return new ImmportantResult(importantArgument);
+	}
 	 
 	public static void main(String[] args) throws IOException, TasteException  {
 	
@@ -77,4 +77,19 @@ public class SampleRecommender  {
 		
 	}
 
+	private class ImmportantResult {
+		private int importantField;
+
+		public ImmportantResult(int importantArgument) {
+			importantField = importantArgument;
+		}
+
+		public int getImportantField() {
+			return importantField;
+		}
+
+		public void setImportantField(int importantField) {
+			this.importantField = importantField;
+		}
+	}
 }
