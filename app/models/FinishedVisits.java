@@ -12,11 +12,11 @@ public class FinishedVisits {
 
     @Id
     private ObjectId id;
-    private String userId;
-    private String clubId;
-    private Long visitStart;
-    private Long visitEnd;
-    private Long qrScanned;
+    private String user_id;
+    private String club_id;
+    private Long visit_start;
+    private Long visit_end;
+    private Long qr_scanned;
     private Long rating;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
     
@@ -25,44 +25,44 @@ public class FinishedVisits {
             this.id = id;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getUser_id() {
+        return user_id;
     }
     
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setUser_id(String user_id) {
+        this.user_id = user_id;
     }
     
-    public String getClubId() {
-        return clubId;
+    public String getClub_id() {
+        return club_id;
     }
     
-    public void setClubId(String clubId) {
-        this.clubId = clubId;
+    public void setClub_id(String club_id) {
+        this.club_id = club_id;
     }
     
-    public Long getVisitStart() {
-        return visitStart;
+    public Long getVisit_start() {
+        return visit_start;
     }
     
-    public void setVisitStart(Long visitStart) {
-        this.visitStart = visitStart;
+    public void setVisit_start(Long visit_start) {
+        this.visit_start = visit_start;
     }
     
-    public Long getVisitEnd() {
-        return visitEnd;
+    public Long getVisit_end() {
+        return visit_end;
     }
     
-    public void setVisitEnd(Long visitEnd) {
-        this.visitEnd = visitEnd;
+    public void setVisit_end(Long visit_end) {
+        this.visit_end = visit_end;
     }
     
-    public Long getQrScanned() {
-        return qrScanned;
+    public Long getQr_scanned() {
+        return qr_scanned;
     }
     
-    public void setQrScanned(Long qrScanned) {
-        this.qrScanned = qrScanned;
+    public void setQr_scanned(Long qr_scanned) {
+        this.qr_scanned = qr_scanned;
     }
     
     public Long getRating() {
