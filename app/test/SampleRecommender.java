@@ -48,6 +48,9 @@ public class SampleRecommender {
 
     }
 
+    public String long2id() {
+        return "";
+    }
 
     public ImmportantResult importantFunction(String importantArgument) throws IOException, TasteException {
 
