@@ -29,7 +29,11 @@ public class Application extends Controller {
     ImportantResultORM outputDatabase;
 
     public Result calc() throws IOException, TasteException{
-        List<Reduced> res = inputDatabase.find().asList().parallelStream().map(Reduced::new).collect(Collectors.toList());
+        List<Reduced> res =
+                inputDatabase
+                        .find().asList()
+                        .parallelStream().map(Reduced::new)
+                        .collect(Collectors.toList());
 
         CsvSchema schema = CsvSchema.builder()
                 .addColumn("user_id")
@@ -40,7 +44,7 @@ public class Application extends Controller {
         try {
             String csv = new CsvMapper().writer(schema).writeValueAsString(res);
 
-            outputDatabase.save(recommender.importantFunction(csv));
+            recommender.importantFunction(csv);
             
             return ok();
         } catch (JsonProcessingException e) {

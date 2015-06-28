@@ -1,11 +1,7 @@
 package controllers;
 
-import com.google.common.base.Function;
 import models.BusinessUserProfile;
-import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.bson.types.ObjectId;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -13,10 +9,7 @@ import services.ClubProfileORM;
 import test.SampleRecommender;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Created by Marek on 2015-06-28.
