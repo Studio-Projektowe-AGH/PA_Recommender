@@ -1,5 +1,6 @@
 package controllers;
 
+import org.apache.mahout.cf.taste.common.TasteException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -14,6 +15,7 @@ import test.SampleRecommender;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.io.*;
 
 public class Application extends Controller {
 
@@ -26,7 +28,7 @@ public class Application extends Controller {
     @Inject
     ImportantResultORM outputDatabase;
 
-    public Result calc() {
+    public Result calc() throws IOException, TasteException{
         List<Reduced> res = inputDatabase.find().asList().parallelStream().map(Reduced::new).collect(Collectors.toList());
 
         CsvSchema schema = CsvSchema.builder()
@@ -39,7 +41,7 @@ public class Application extends Controller {
             String csv = new CsvMapper().writer(schema).writeValueAsString(res);
 
             outputDatabase.save(recommender.importantFunction(csv));
-
+            
             return ok();
         } catch (JsonProcessingException e) {
             e.printStackTrace();

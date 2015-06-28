@@ -19,6 +19,9 @@ import org.apache.mahout.math.Arrays;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.lang.String;
+
 
 public class SampleRecommender {
 
@@ -44,34 +47,68 @@ public class SampleRecommender {
 	
 	public ImmportantResult importantFunction(String importantArgument) throws IOException, TasteException
 	{
-		int idUz=0;
-		boolean blnFound = false;
 		
-		FileInputStream fis = new FileInputStream("dane.csv");
-		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-		 
-		String line = null;
-		ArrayList<Long> t = new ArrayList<Long>();
+			int idUz=0;
+			boolean blnFound = false;
+			String line = null;
+			ArrayList<Long> t = new ArrayList<Long>();
 
-		while ((line = br.readLine()) != null) {
-			int indPrz=line.indexOf( ',' );
-		    String idU = line.substring(0, indPrz);
-		    idUz = Integer.parseInt(idU);
-		    Long val = Long.valueOf(idUz);
-		    blnFound = t.contains(val);
-		   
-		    if (!blnFound){
-		    	t.add(val);
-		    }
-		 }
-		
-		 br.close();
-		
+	  	Scanner scanner = new Scanner(importantArgument);
+	  
+
+	  	while ((line = scanner.nextLine()) != null) {
+				int indPrz=line.indexOf( ',' );
+			    String idU = line.substring(0, indPrz);
+			    idUz = Integer.parseInt(idU);
+			    Long val = Long.valueOf(idUz);
+			    blnFound = t.contains(val);
+			   
+			    if (!blnFound){
+			    	t.add(val);
+			    }
+			 }
+			 scanner.close();
+
+			 BufferedWriter writer = null;
+			 DataModel model = null;
+			 try
+			 {	
+				   File temp = File.createTempFile("dane", ".csv"); 
+         
+        	 writer = new BufferedWriter( new FileWriter( temp));
+			     writer.write( importantArgument);
+         	 writer.close();
+					
+           String path = temp.getAbsolutePath();
+           
+					 model = new FileDataModel(new File(path));
+			 }
+			 catch ( IOException e)
+			 {
+			 }
+			 finally
+			 {
+			     try
+			     {
+			         if ( writer != null)
+			         writer.close( );
+			     }
+			     catch ( IOException e)
+			     {
+			     }
+			 }
 			 
-		DataModel model = new FileDataModel(new File("dane.csv"));
-		UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
-		UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
-		UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+			if (model != null) {
+			 	// cos sie odczytalo 
+			} else {
+			 	// byly jakies bledy 
+			}
+			// 			DataModel model = new FileDataModel(new File(writer));
+
+			UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
+			UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
+			UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
+			
 		
 	
 		
