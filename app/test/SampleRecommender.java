@@ -13,6 +13,7 @@ import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.math.Arrays;
+import play.Logger;
 
 //import rekomender.SampleRecommender.Rekomendacja;
 
@@ -49,6 +50,8 @@ public class SampleRecommender {
 
 
     public ImmportantResult importantFunction(String importantArgument) throws IOException, TasteException {
+
+        Logger.debug("zmien moja nazwe: " + importantArgument);
 
         int idUz = 0;
         boolean blnFound = false;
