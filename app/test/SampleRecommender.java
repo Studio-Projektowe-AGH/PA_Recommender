@@ -1,6 +1,7 @@
 package test;
 
 import models.ImmportantResult;
+
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -11,6 +12,9 @@ import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.apache.mahout.math.Arrays;
+
+//import rekomender.SampleRecommender.Rekomendacja;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,15 +22,30 @@ import java.util.List;
 
 public class SampleRecommender {
 
-	public ImmportantResult importantFunction(String importantArgument)
-	{
-		return new ImmportantResult(importantArgument);
+	public static class Rekomendacja{
+		public long idUzytkownika;
+		public String idKlubu;
+		
+		public Rekomendacja(){};
+		
+		public Rekomendacja (long idUzytkownika, String idKlubu){
+			this.idUzytkownika = idUzytkownika;
+			this.idKlubu = idKlubu;
+		}
+		
+		public String toString() {
+			return "(idUzytkownika: " + idUzytkownika +", idKlubu: " + idKlubu +")";
+			}
+		
+		List <Rekomendacja> lr;
+		
 	}
 	 
-	public static void main(String[] args) throws IOException, TasteException  {
 	
-		 int idUz=0;
-		 boolean blnFound = false;
+	public ImmportantResult importantFunction(String importantArgument) throws IOException, TasteException
+	{
+		int idUz=0;
+		boolean blnFound = false;
 		
 		FileInputStream fis = new FileInputStream("dane.csv");
 		BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -35,13 +54,9 @@ public class SampleRecommender {
 		ArrayList<Long> t = new ArrayList<Long>();
 
 		while ((line = br.readLine()) != null) {
-			//System.out.print("Found Index :" );
 			int indPrz=line.indexOf( ',' );
-		    //System.out.println(indPrz);
 		    String idU = line.substring(0, indPrz);
-		    //System.out.println("idUz: " + idU);
 		    idUz = Integer.parseInt(idU);
-		   // System.out.println("idUz: " + idUz);
 		    Long val = Long.valueOf(idUz);
 		    blnFound = t.contains(val);
 		   
@@ -49,10 +64,8 @@ public class SampleRecommender {
 		    	t.add(val);
 		    }
 		 }
-		 
-		 System.out.println(t);
-				
-		br.close();
+		
+		 br.close();
 		
 			 
 		DataModel model = new FileDataModel(new File("dane.csv"));
@@ -60,21 +73,31 @@ public class SampleRecommender {
 		UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
 		UserBasedRecommender recommender = new GenericUserBasedRecommender(model, neighborhood, similarity);
 		
+	
+		
+		List <Rekomendacja> lr = new ArrayList<Rekomendacja>();
+		
 		for(Long item : t){
-		   // System.out.println(item + ", ");
-			List <RecommendedItem> recommendations = recommender.recommend(item, 3);
+		 List <RecommendedItem> recommendations = recommender.recommend(item, 3);
 			for (RecommendedItem recommendation : recommendations) {
-			  System.out.println(recommendation + "for user id " + item);
+				String tmp = recommendation.toString();
+				int indPrz=tmp.indexOf( ',' );
+				int indDwuKr=tmp.indexOf( ':' );
+				String idKl = tmp.substring(indDwuKr+1, indPrz);
+//					System.out.println(idKl + " for user id " + item);
+//					System.out.println("id klubu " + idKl);
+//					System.out.println("user id " + item);
+				
+				Rekomendacja r = new Rekomendacja(item, idKl);
+				lr.add(r);
 			}
-
 		}
 		
+		System.out.println(Arrays.toString(lr.toArray()));
+		importantArgument = Arrays.toString(lr.toArray());
 		
-		List <RecommendedItem> recommendations = recommender.recommend(4, 3);
-		for (RecommendedItem recommendation : recommendations) {
-		  System.out.println(recommendation);
+			return new ImmportantResult(importantArgument);
 		}
-		
-		
+	
 	}
-}
+
