@@ -1,5 +1,6 @@
 package test;
 
+import models.ImmportantResult;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public class SampleRecommender {
 
-	public ImmportantResult importantFunction(int importantArgument)
+	public ImmportantResult importantFunction(String importantArgument)
 	{
 		return new ImmportantResult(importantArgument);
 	}
@@ -75,21 +76,5 @@ public class SampleRecommender {
 		}
 		
 		
-	}
-
-	private class ImmportantResult {
-		private int importantField;
-
-		public ImmportantResult(int importantArgument) {
-			importantField = importantArgument;
-		}
-
-		public int getImportantField() {
-			return importantField;
-		}
-
-		public void setImportantField(int importantField) {
-			this.importantField = importantField;
-		}
 	}
 }

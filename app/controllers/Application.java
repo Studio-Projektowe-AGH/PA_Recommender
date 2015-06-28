@@ -7,7 +7,8 @@ import models.FinishedVisits;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
-import services.DB;
+import services.FinishedVisitsORM;
+import services.ImportantResultORM;
 import test.SampleRecommender;
 
 import javax.inject.Inject;
@@ -20,10 +21,13 @@ public class Application extends Controller {
     SampleRecommender recommender;
 
     @Inject
-    DB database;
+    FinishedVisitsORM inputDatabase;
+
+    @Inject
+    ImportantResultORM outputDatabase;
 
     public Result calc() {
-        List<Reduced> res = database.find().asList().parallelStream().map(Reduced::new).collect(Collectors.toList());
+        List<Reduced> res = inputDatabase.find().asList().parallelStream().map(Reduced::new).collect(Collectors.toList());
 
         CsvSchema schema = CsvSchema.builder()
                 .addColumn("user_id")
@@ -33,7 +37,10 @@ public class Application extends Controller {
 
         try {
             String csv = new CsvMapper().writer(schema).writeValueAsString(res);
-            return ok(csv);
+
+            outputDatabase.save(recommender.importantFunction(csv));
+
+            return ok();
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             return internalServerError();
