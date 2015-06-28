@@ -23,9 +23,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.HashMap; 
+import java.io.*;
 
 @Singleton
 public class SampleRecommender {
+	private static final long[] createLookupTable() {
+		long[] internalbyteTable = new long[256];
+		long h = 0x544B2FBACAAF1684L;
+		for (int i = 0; i < 256; i++) {
+			for (int j = 0; j < 31; j++) {
+				h = (h >>> 7) ^ h;
+				h = (h << 11) ^ h;
+				h = (h >>> 10) ^ h;
+			}
+			internalbyteTable[i] = h;
+		}
+		return internalbyteTable;
+	}
+
+	private static final long[] byteTable = createLookupTable();
+	private static final long HSTART = 0xBB40E64DA205B064L;
+	private static final long HMULT = 7664345821815920749L;
 
     private Optional<GenericUserBasedRecommender> recommender = Optional.empty();
 
@@ -59,67 +78,105 @@ public class SampleRecommender {
         return "";
     }
 
-    public static Long id2long(String id) {
-        return 1L;
+    public static Long id2long(String id) throws UnsupportedEncodingException {
+        byte[] bytesOfMessage = id.getBytes("UTF-8");
+		Long val = hash(bytesOfMessage);
+		return val;
     }
 
+    public static long hash(byte[] data) {
+		long h = HSTART;
+		final long hmult = HMULT;
+		final long[] ht = byteTable;
+		for (int len = data.length, i = 0; i < len; i++) {
+			h = (h * hmult) ^ ht[data[i] & 0xff];
+		}
+		return h;
+	}
+    
     public void importantFunction(String importantArgument) throws IOException, TasteException {
 
-        Logger.debug("zmien moja nazwe: " + importantArgument);
+    	Logger.debug("zmien moja nazwe: " + importantArgument);
 
-        int idUz = 0;
-        boolean blnFound = false;
-        String line = null;
-        ArrayList<Long> t = new ArrayList<Long>();
+		int idUz = 0;
+		boolean blnFound = false;
+		String line = null;
+		ArrayList<Long> t = new ArrayList<Long>();
 
-        Scanner scanner = new Scanner(importantArgument);
+		Scanner scanner = new Scanner(importantArgument);
+		HashMap<Long, String> hash = new HashMap<>();
+
+		//ImmportantArgument newImportantArgument;
+		String newImportantArgument = "";
+		try {
+			while (scanner.hasNextLine()) {
+				line = scanner.nextLine();
+				// 			while ((line = scanner.nextLine()) != null) {
+				Logger.debug("petla while");
+				int indPrz = line.indexOf(',');
+				String idU = line.substring(0, indPrz);
+				// idUz = Integer.parseInt(idU);
+				//Long val = Long.valueOf(idUz);
 
 
-        while ((line = scanner.nextLine()) != null) {
-            int indPrz = line.indexOf(',');
-            String idU = line.substring(0, indPrz);
-            idUz = Integer.parseInt(idU);
-            Long val = Long.valueOf(idUz);
-            blnFound = t.contains(val);
+				//byte[] bytesOfMessage = idU.getBytes("UTF-8");
+				
+				Long val = id2long(idU);
+				
+				hash.put(val, idU);
+				newImportantArgument += val.toString() + line.substring(indPrz) + "\n";
+				blnFound = t.contains(val);
 
-            if (!blnFound) {
-                t.add(val);
-            }
-        }
-        scanner.close();
+				if (!blnFound) {
+					t.add(val);
+				}
+			}
 
-        BufferedWriter writer = null;
-        DataModel model = null;
-        try {
-            File temp = File.createTempFile("dane", ".csv");
+			importantArgument = newImportantArgument;
 
-            writer = new BufferedWriter(new FileWriter(temp));
-            writer.write(importantArgument);
-            writer.close();
+			System.out.println(importantArgument);
 
-            String path = temp.getAbsolutePath();
+			scanner.close();
 
-            model = new FileDataModel(new File(path));
-        } catch (IOException e) {
-        } finally {
-            try {
-                if (writer != null)
-                    writer.close();
-            } catch (IOException e) {
-            }
-        }
 
-        if (model != null) {
-            // cos sie odczytalo
-        } else {
-            // byly jakies bledy
-        }
+			BufferedWriter writer = null;
+			DataModel model = null;
+			try {
+				File temp = File.createTempFile("dane", ".csv");
+
+				writer = new BufferedWriter(new FileWriter(temp));
+				writer.write(importantArgument);
+				writer.close();
+
+				String path = temp.getAbsolutePath();
+
+				model = new FileDataModel(new File(path));
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (writer != null)
+						writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+
+				}
+			}
+
+			if (model != null) {
+				// cos sie odczytalo
+			} else {
+				// byly jakies bledy
+			}
         // 			DataModel model = new FileDataModel(new File(writer));
 
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
         UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
         recommender = Optional.of(new GenericUserBasedRecommender(model, neighborhood, similarity));
-
+		}
+        catch(Exception e){
+			e.printStackTrace();
+		}
 
 //        List<Rekomendacja> lr = new ArrayList<Rekomendacja>();
 //
