@@ -130,6 +130,7 @@ public class SampleRecommender {
 				
 				int ind2prz = nthOccurrence(line, ',', 1);
 				String rating = line.substring(ind2prz);
+				rating = rating.concat(".0");
 
 				newImportantArgument += val.toString() + "," + valKlub.toString() + rating  +"\n";
 				blnFound = t.contains(val);
