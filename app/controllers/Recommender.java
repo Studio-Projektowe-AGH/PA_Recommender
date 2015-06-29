@@ -1,6 +1,7 @@
 package controllers;
 
 import models.BusinessUserProfile;
+import models.Location;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
@@ -16,6 +17,7 @@ import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +36,14 @@ public class Recommender extends Controller {
 
     public Result clubsFroUser(String user_id, int count, double x, double y) {
         final Optional<GenericUserBasedRecommender> maybeRecommender = sampleRecommender.getRecommender();
+
+        final BusinessUserProfile sample = new BusinessUserProfile();
+        sample.name = "Ola i Magda zepsuly";
+        sample.location = new Location();
+        sample.location.setCity("Krakow");
+        sample.location.setCountry("Polska");
+        sample.location.setStreet("Gruntowa");
+        sample.music_genres = Arrays.asList("country", "reggae");
 
         final List<BusinessUserProfile> clubs = maybeRecommender.flatMap(recommender -> {
             try {
@@ -56,7 +66,7 @@ public class Recommender extends Controller {
                 e.printStackTrace();
                 return Optional.empty();
             }
-        }).orElse(Collections.singletonList(new BusinessUserProfile()));
+        }).orElse(Collections.singletonList(sample));
 
         return ok(Json.toJson(clubs));
     }
