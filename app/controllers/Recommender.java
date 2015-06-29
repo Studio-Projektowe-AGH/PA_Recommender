@@ -37,7 +37,7 @@ public class Recommender extends Controller {
     public Result clubsFroUser(String user_id, int count, double x, double y) {
         final Optional<GenericUserBasedRecommender> maybeRecommender = sampleRecommender.getRecommender();
 
-        final BusinessUserProfile sample = new BusinessUserProfile();
+        final BusinessUserProfile sample = new BusinessUserProfile("558c3e3fe4b06c259ee9834f");
         sample.name = "Ola i Magda zepsuly";
         sample.location = new Location();
         sample.location.setCity("Krakow");
