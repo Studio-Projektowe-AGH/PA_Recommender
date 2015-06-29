@@ -8,7 +8,11 @@ import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
+import org.apache.mahout.math.Arrays;
 import play.Logger;
+
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -88,6 +92,13 @@ public class SampleRecommender {
 		return h;
 	}
 
+    public static int nthOccurrence(String str, char c, int n) {
+        int pos = str.indexOf(c, 0);
+        while (n-- > 0 && pos != -1)
+            pos = str.indexOf(c, pos+1);
+        return pos;
+    }
+    
     public void importantFunction(String importantArgument) throws IOException, TasteException {
 
     	Logger.debug("zmien moja nazwe: " + importantArgument);
@@ -111,12 +122,16 @@ public class SampleRecommender {
 				// idUz = Integer.parseInt(idU);
 				//Long val = Long.valueOf(idUz);
 
-
+				String klub = line.substring(indPrz);
 				//byte[] bytesOfMessage = idU.getBytes("UTF-8");
 
-				Long val = id2long(idU);
+				Long val = id2long(idU);  
+				Long valKlub = id2long(klub);
+				
+				int ind2prz = nthOccurrence(line, ',', 1);
+				String rating = line.substring(ind2prz);
 
-				newImportantArgument += val.toString() + line.substring(indPrz) + "\n";
+				newImportantArgument += val.toString() + "," + valKlub.toString() + rating  +"\n";
 				blnFound = t.contains(val);
 
 				if (!blnFound) {
@@ -162,36 +177,40 @@ public class SampleRecommender {
 			}
         // 			DataModel model = new FileDataModel(new File(writer));
 
+			
         UserSimilarity similarity = new PearsonCorrelationSimilarity(model);
+       
         UserNeighborhood neighborhood = new ThresholdUserNeighborhood(0.1, similarity, model);
+       // UserBasedRecommender recommender;
+
         recommender = Optional.of(new GenericUserBasedRecommender(model, neighborhood, similarity));
 		}
         catch(Exception e){
 			e.printStackTrace();
 		}
 
-//        List<Rekomendacja> lr = new ArrayList<Rekomendacja>();
-//
-//        for (Long item : t) {
-//            List<RecommendedItem> recommendations = recommender.recommend(item, 3);
-//            for (RecommendedItem recommendation : recommendations) {
-//                String tmp = recommendation.toString();
-//                int indPrz = tmp.indexOf(',');
-//                int indDwuKr = tmp.indexOf(':');
-//                String idKl = tmp.substring(indDwuKr + 1, indPrz);
-////					System.out.println(idKl + " for user id " + item);
-////					System.out.println("id klubu " + idKl);
-////					System.out.println("user id " + item);
-//
-//                Rekomendacja r = new Rekomendacja(item, idKl);
-//                lr.add(r);
-//            }
-//        }
-//
-//        System.out.println(Arrays.toString(lr.toArray()));
-//        importantArgument = Arrays.toString(lr.toArray());
-//
-//        return new ImmportantResult(importantArgument);
+        List<Rekomendacja> lr = new ArrayList<Rekomendacja>();
+
+        for (Long item : t) {
+            List<RecommendedItem> recommendations = recommender.recommend(item, 3);
+            for (RecommendedItem recommendation : recommendations) {
+                String tmp = recommendation.toString();
+                int indPrz = tmp.indexOf(',');
+                int indDwuKr = tmp.indexOf(':');
+                String idKl = tmp.substring(indDwuKr + 1, indPrz);
+//					System.out.println(idKl + " for user id " + item);
+//					System.out.println("id klubu " + idKl);
+//					System.out.println("user id " + item);
+
+                Rekomendacja r = new Rekomendacja(item, idKl);
+                lr.add(r);
+            }
+        }
+
+        System.out.println(Arrays.toString(lr.toArray()));
+        importantArgument = Arrays.toString(lr.toArray());
+
+        return new ImmportantResult(importantArgument);
     }
 
 }
