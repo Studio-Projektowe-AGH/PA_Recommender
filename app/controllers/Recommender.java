@@ -38,7 +38,7 @@ public class Recommender extends Controller {
         final Optional<GenericUserBasedRecommender> maybeRecommender = sampleRecommender.getRecommender();
 
         final BusinessUserProfile sample = new BusinessUserProfile("558c3e3fe4b06c259ee9834f");
-        sample.name = "Ola i Magda zepsuly";
+        sample.name = "Ola i Magda jeszcze nie naprawily";
         sample.location = new Location();
         sample.location.setCity("Krakow");
         sample.location.setCountry("Polska");
