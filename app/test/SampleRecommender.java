@@ -189,28 +189,28 @@ public class SampleRecommender {
 			e.printStackTrace();
 		}
 
-        List<Rekomendacja> lr = new ArrayList<Rekomendacja>();
-
-        for (Long item : t) {
-            List<RecommendedItem> recommendations = recommender.recommend(item, 3);
-            for (RecommendedItem recommendation : recommendations) {
-                String tmp = recommendation.toString();
-                int indPrz = tmp.indexOf(',');
-                int indDwuKr = tmp.indexOf(':');
-                String idKl = tmp.substring(indDwuKr + 1, indPrz);
-//					System.out.println(idKl + " for user id " + item);
-//					System.out.println("id klubu " + idKl);
-//					System.out.println("user id " + item);
-
-                Rekomendacja r = new Rekomendacja(item, idKl);
-                lr.add(r);
-            }
-        }
-
-        System.out.println(Arrays.toString(lr.toArray()));
-        importantArgument = Arrays.toString(lr.toArray());
-
-        return new ImmportantResult(importantArgument);
+//        List<Rekomendacja> lr = new ArrayList<Rekomendacja>();
+//
+//        for (Long item : t) {
+//            List<RecommendedItem> recommendations = recommender.recommend(item, 3);
+//            for (RecommendedItem recommendation : recommendations) {
+//                String tmp = recommendation.toString();
+//                int indPrz = tmp.indexOf(',');
+//                int indDwuKr = tmp.indexOf(':');
+//                String idKl = tmp.substring(indDwuKr + 1, indPrz);
+////					System.out.println(idKl + " for user id " + item);
+////					System.out.println("id klubu " + idKl);
+////					System.out.println("user id " + item);
+//
+//                Rekomendacja r = new Rekomendacja(item, idKl);
+//                lr.add(r);
+//            }
+//        }
+//
+//        System.out.println(Arrays.toString(lr.toArray()));
+//        importantArgument = Arrays.toString(lr.toArray());
+//
+//        return new ImmportantResult(importantArgument);
     }
 
 }
