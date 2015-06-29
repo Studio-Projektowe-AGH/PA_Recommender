@@ -40,8 +40,8 @@ public class BusinessUserProfile {
         id = new ObjectId(userId);
     }
 
-    public ObjectId getId() {
-        return id;
+    public String getId() {
+        return id.toHexString();
     }
     public void setName(String name) {
         this.name = name;
