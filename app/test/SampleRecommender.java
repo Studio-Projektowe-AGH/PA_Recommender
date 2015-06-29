@@ -1,6 +1,5 @@
 package test;
 
-import models.ImmportantResult;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
@@ -8,39 +7,33 @@ import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
-import org.apache.mahout.math.Arrays;
 import play.Logger;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.HashMap; 
 import java.io.*;
+import java.util.*;
 
 @Singleton
 public class SampleRecommender {
-	private static final long[] createLookupTable() {
-		long[] internalbyteTable = new long[256];
-		long h = 0x544B2FBACAAF1684L;
-		for (int i = 0; i < 256; i++) {
-			for (int j = 0; j < 31; j++) {
-				h = (h >>> 7) ^ h;
-				h = (h << 11) ^ h;
-				h = (h >>> 10) ^ h;
-			}
-			internalbyteTable[i] = h;
-		}
-		return internalbyteTable;
-	}
+
+    @Inject
+    private HashMap<Long, String> idMap;
+
+    private static final long[] createLookupTable() {
+        long[] internalbyteTable = new long[256];
+        long h = 0x544B2FBACAAF1684L;
+        for (int i = 0; i < 256; i++) {
+            for (int j = 0; j < 31; j++) {
+                h = (h >>> 7) ^ h;
+                h = (h << 11) ^ h;
+                h = (h >>> 10) ^ h;
+            }
+            internalbyteTable[i] = h;
+        }
+        return internalbyteTable;
+    }
 
 	private static final long[] byteTable = createLookupTable();
 	private static final long HSTART = 0xBB40E64DA205B064L;
@@ -74,14 +67,15 @@ public class SampleRecommender {
 
     }
 
-    public static String long2id(long number) {
-        return "";
+    public String long2id(long number) {
+        return idMap.get(number);
     }
 
-    public static Long id2long(String id) throws UnsupportedEncodingException {
+    public Long id2long(String id) throws UnsupportedEncodingException {
         byte[] bytesOfMessage = id.getBytes("UTF-8");
-		Long val = hash(bytesOfMessage);
-		return val;
+        Long val = hash(bytesOfMessage);
+        idMap.put(val, id);
+        return val;
     }
 
     public static long hash(byte[] data) {
@@ -93,7 +87,7 @@ public class SampleRecommender {
 		}
 		return h;
 	}
-    
+
     public void importantFunction(String importantArgument) throws IOException, TasteException {
 
     	Logger.debug("zmien moja nazwe: " + importantArgument);
@@ -103,8 +97,7 @@ public class SampleRecommender {
 		String line = null;
 		ArrayList<Long> t = new ArrayList<Long>();
 
-		Scanner scanner = new Scanner(importantArgument);
-		HashMap<Long, String> hash = new HashMap<>();
+        Scanner scanner = new Scanner(importantArgument);
 
 		//ImmportantArgument newImportantArgument;
 		String newImportantArgument = "";
@@ -120,10 +113,9 @@ public class SampleRecommender {
 
 
 				//byte[] bytesOfMessage = idU.getBytes("UTF-8");
-				
+
 				Long val = id2long(idU);
-				
-				hash.put(val, idU);
+
 				newImportantArgument += val.toString() + line.substring(indPrz) + "\n";
 				blnFound = t.contains(val);
 

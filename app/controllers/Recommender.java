@@ -5,6 +5,7 @@ import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.bson.types.ObjectId;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -12,6 +13,8 @@ import services.ClubProfileORM;
 import test.SampleRecommender;
 
 import javax.inject.Inject;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
@@ -30,21 +33,26 @@ public class Recommender extends Controller {
     ClubProfileORM clubDatabase;
 
     public Result clubsFroUser(String user_id, int count, double x, double y) {
-        final Optional<GenericUserBasedRecommender> recommender = sampleRecommender.getRecommender();
+        final Optional<GenericUserBasedRecommender> maybeRecommender = sampleRecommender.getRecommender();
 
-        final List<BusinessUserProfile> clubs = recommender.flatMap(genericUserBasedRecommender -> {
+        final List<BusinessUserProfile> clubs = maybeRecommender.flatMap(recommender -> {
             try {
-                return Optional.of(genericUserBasedRecommender
-                                .recommend(SampleRecommender.id2long(user_id), count)
+                final List<RecommendedItem> recommendation = recommender.recommend(sampleRecommender.id2long(user_id), count);
+                Logger.debug(String.valueOf(recommendation.size()));
+
+                return Optional.of(recommendation
                                 .parallelStream()
                                 .map(RecommendedItem::getItemID)
-                                .map(SampleRecommender::long2id)
+                                .map(sampleRecommender::long2id)
                                 .map(ObjectId::new)
                                 .map(clubDatabase::get)
                                 .sorted((o1, o2) -> cmp(o1, o2, x, y))
                                 .collect(Collectors.toList())
                 );
             } catch (UnsupportedEncodingException | TasteException e) {
+                final StringWriter out = new StringWriter();
+                e.printStackTrace(new PrintWriter(out));
+                Logger.warn(out.toString());
                 e.printStackTrace();
                 return Optional.empty();
             }
