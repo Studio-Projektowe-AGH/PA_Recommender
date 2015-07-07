@@ -1,9 +1,7 @@
 package services;
 
-import com.google.inject.Inject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import models.FinishedVisits;
 import org.bson.types.ObjectId;
 import org.mongodb.morphia.Morphia;
 import org.mongodb.morphia.dao.BasicDAO;

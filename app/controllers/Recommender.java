@@ -1,9 +1,9 @@
 package controllers;
 
 import models.BusinessUserProfile;
-import models.Location;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.model.mongodb.MongoDBDataModel;
+import org.apache.mahout.cf.taste.impl.recommender.svd.SVDRecommender;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.bson.types.ObjectId;
 import play.Logger;
@@ -11,13 +11,10 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import services.ClubProfileORM;
-import test.SampleRecommender;
 
 import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -28,54 +25,53 @@ import java.util.stream.Collectors;
  * uses recommendation model and collects corresponding info
  */
 public class Recommender extends Controller {
-    @Inject
-    SampleRecommender sampleRecommender;
 
     @Inject
     ClubProfileORM clubDatabase;
 
-    public Result clubsFroUser(String user_id, int count, double x, double y) {
-        final Optional<GenericUserBasedRecommender> maybeRecommender = sampleRecommender.getRecommender();
+    @Inject
+    test.Recommender testRec;
 
-        final BusinessUserProfile sample = new BusinessUserProfile("558c3e3fe4b06c259ee9834f");
-        sample.name = "Ola i Magda jeszcze nie naprawily";
-        sample.location = new Location();
-        sample.location.setCity("Krakow");
-        sample.location.setCountry("Polska");
-        sample.location.setStreet("Gruntowa");
-        sample.music_genres = Arrays.asList("country", "reggae");
+    public Result clubsFroUser(String user_id, int count, double x, double y) {
+        final Optional<SVDRecommender> maybeRecommender = testRec.getRecommender();
 
         final List<BusinessUserProfile> clubs = maybeRecommender.flatMap(recommender -> {
             try {
-                final List<RecommendedItem> recommendation = recommender.recommend(sampleRecommender.id2long(user_id), count);
+                final MongoDBDataModel dataModel = testRec.getDataModel();
+                final long userID = Long.parseLong(dataModel.fromIdToLong(user_id, false));
+                final List<RecommendedItem> recommendation = recommender.recommend(
+                        userID,
+                        count);
                 Logger.debug(String.valueOf(recommendation.size()));
 
                 return Optional.of(recommendation
                                 .parallelStream()
                                 .map(RecommendedItem::getItemID)
-                                .map(sampleRecommender::long2id)
+                                .map(dataModel::fromLongToId)
                                 .map(ObjectId::new)
                                 .map(clubDatabase::get)
                                 .sorted((o1, o2) -> cmp(o1, o2, x, y))
                                 .collect(Collectors.toList())
                 );
-            } catch (UnsupportedEncodingException | TasteException e) {
+            } catch (TasteException e) {
                 final StringWriter out = new StringWriter();
                 e.printStackTrace(new PrintWriter(out));
                 Logger.warn(out.toString());
                 e.printStackTrace();
                 return Optional.empty();
             }
-        }).orElse(Collections.singletonList(sample));
+        }).orElse(Collections.emptyList());
 
         return ok(Json.toJson(clubs));
     }
 
     private double xCord(BusinessUserProfile o) {
-        return o.locationCoordinates.getxCoordinate();
+        final Double aDouble = o.locationCoordinates.getxCoordinate();
+        return aDouble != null ? aDouble : 0;
     }
     private double yCord(BusinessUserProfile o) {
-        return o.locationCoordinates.getxCoordinate();
+        final Double aDouble = o.locationCoordinates.getyCoordinate();
+        return aDouble != null ? aDouble : 0;
     }
     private int cmp(BusinessUserProfile o1, BusinessUserProfile o2, double x, double y) {
         double distance1 = Math.pow(xCord(o1) - x, 2) + Math.pow(yCord(o1) - y, 2);
